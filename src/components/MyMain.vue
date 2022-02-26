@@ -1,17 +1,22 @@
 <template>
     <main>
-        
+            <div class="container">
+                <MySelect @changeGenre="changeDone"/>
+            </div>
+
             <div class="container">
 
-                <div class="row row-cols-5 justify-center py-5">
+                <div v-if="!loadingInPorgress" class="row row-cols-5 justify-center py-5">
 
                     <CardMusic 
-                    v-for="(details, indice) in dischi" 
-                    :key="indice" 
+                    v-for="details in filtredGenre" 
+                    :key="details.id" 
                     :details="details"
                     />
 
                 </div>
+                
+                <MyLoader v-else />
 
             </div>
        
@@ -21,16 +26,19 @@
 <script>
 const axios = require('axios');
 import CardMusic from './partials/CardMusic.vue';
+import MySelect from './partials/MySelect.vue';
 export default {
     name: 'MyMain',
     data() {
         return {
             dischi: [],
-            loadingInPorgress: true, 
+            loadingInPorgress: true,
+            changeGenre: ""
         }
     },
     components: {
-        CardMusic
+        CardMusic,
+        MySelect
     },
     methods: {
         getMusic() {
@@ -39,9 +47,24 @@ export default {
                 this.dischi = response.data.response;
                 this.loadingInPorgress = false;
             })
+            // In caso di errore
             .catch(function(error) {
                 console.log(error);
             })
+        },
+        changeDone(text) {
+            this.changeGenre = text;
+        }
+    },
+    computed: {
+        filtredGenre() {
+            if ((this.changeGenre == "") || (this.changeGenre == "all")) {
+                return this.dischi;
+            } else {
+                return this.dischi.filter(item => {
+                    return item.genre.toLowerCase().replaceAll('', '').includes(this.changeGenre.toLowerCase().replaceAll('', ''));
+                })
+            }
         }
     },
     created() {
