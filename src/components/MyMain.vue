@@ -16,8 +16,7 @@
 
                 </div>
                 
-                <MyLoader v-else />
-
+                
             </div>
        
     </main>
